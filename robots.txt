@@ -1,0 +1,54 @@
+# =========================================================
+# ASM Management Consultations — robots.txt (Production)
+# https://asm.money
+# =========================================================
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://asm.money/sitemap.xml
+
+# ═══ Disallow Rules ═══
+# Build artifacts
+Disallow: /node_modules/
+Disallow: /dist/
+Disallow: /scripts/
+
+# Private assets
+Disallow: /assets/fonts/
+Disallow: /*.json$
+
+# Development files
+Disallow: /*.config.js$
+Disallow: /*.config.cjs$
+Disallow: /package*.json
+
+# ═══ Crawl Optimization ═══
+# Request delay (polite crawling)
+Crawl-delay: 1
+
+# ═══ Specific Bot Rules ═══
+# Googlebot (no crawl-delay needed)
+User-agent: Googlebot
+Allow: /
+Disallow: /node_modules/
+Disallow: /dist/
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# ═══ Block Bad Bots ═══
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

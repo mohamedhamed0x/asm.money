@@ -1,0 +1,68 @@
+<!-- ═══════════════════════════════════════════
+     ASM — Modal Component (No static text)
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="consultation-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <!-- Header -->
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-title" data-content="modal_title"></h2>
+      <button class="modal__close" data-action="close-modal" aria-label="Close">
+        &times;
+      </button>
+    </div>
+
+    <!-- Body / Form -->
+    <form class="modal__body" id="consultation-form" novalidate>
+      <div class="form-group">
+        <label for="modal-name" data-content="modal_name"></label>
+        <input type="text" id="modal-name" name="name" required autocomplete="name"
+          data-placeholder="modal_name_placeholder" />
+      </div>
+
+      <div class="form-group">
+        <label for="modal-email" data-content="modal_email"></label>
+        <input type="email" id="modal-email" name="email" required autocomplete="email"
+          data-placeholder="modal_email_placeholder" />
+      </div>
+
+      <div class="form-group">
+        <label for="modal-phone" data-content="modal_phone"></label>
+        <input type="tel" id="modal-phone" name="phone" required autocomplete="tel"
+          data-placeholder="modal_phone_placeholder" />
+      </div>
+
+      <div class="form-group" id="services-multiselect">
+        <label data-content="modal_service"></label>
+        <!-- Selected tags appear here -->
+        <div class="selected-services" id="selected-services-tags"></div>
+        <!-- Dropdown for choosing -->
+        <select id="service-select">
+          <option value="" disabled selected data-content="modal_service_placeholder"></option>
+          <!-- Options populated dynamically from services-data.js -->
+        </select>
+        <!-- Hidden input carries all selected values, comma-separated -->
+        <input type="hidden" name="service" id="services-hidden-input" required />
+      </div>
+
+      <div class="form-group">
+        <label for="modal-date" data-content="modal_date"></label>
+        <input type="datetime-local" id="modal-date" name="date" required />
+      </div>
+
+      <div class="form-group">
+        <label for="modal-message" data-content="modal_message"></label>
+        <textarea id="modal-message" name="message" rows="4" data-placeholder="modal_message_placeholder"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg" data-content="modal_submit"></button>
+
+      <!-- Success message (hidden by default) -->
+      <p class="form-success" id="modal-success" data-content="modal_success" style="
+          display: none;
+          color: var(--color-success);
+          text-align: center;
+          font-weight: 600;
+        "></p>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,100 @@
+<!-- ═══════════════════════════════════════════
+     ASM — Navbar Component (No static text)
+     ═══════════════════════════════════════════ -->
+<nav class="navbar" role="navigation" aria-label="Main Navigation">
+  <div class="navbar__inner">
+    <!-- Logo -->
+    <a href="/" class="navbar__logo" aria-label="ASM Home">
+      <img
+        src="/assets/images/logo.webp"
+        alt="ASM"
+        class="navbar__logo-img"
+        width="50"
+        height="50"
+      />
+      <div class="navbar__logo-text">
+        <span class="navbar__brand" data-content="site_name"></span>
+        <span class="navbar__slogan" data-content="logo_slogan"></span>
+      </div>
+    </a>
+
+    <!-- Navigation Links -->
+    <div class="navbar__nav" id="main-nav" role="menubar">
+      <a
+        href="/"
+        class="navbar__link"
+        role="menuitem"
+        data-content="nav_home"
+      ></a>
+      <a
+        href="/about"
+        class="navbar__link"
+        role="menuitem"
+        data-content="nav_about"
+      ></a>
+      <a
+        href="/services"
+        class="navbar__link"
+        role="menuitem"
+        data-content="nav_services"
+      ></a>
+      <a
+        href="/booking"
+        class="navbar__link"
+        role="menuitem"
+        data-content="nav_booking"
+      ></a>
+      <a
+        href="/faq"
+        class="navbar__link"
+        role="menuitem"
+        data-content="nav_faq"
+      ></a>
+      <a
+        href="/contact"
+        class="navbar__link"
+        role="menuitem"
+        data-content="nav_contact"
+      ></a>
+    </div>
+
+    <!-- Actions -->
+    <div class="navbar__actions">
+      <!-- Dark Mode Toggle -->
+      <button
+        class="btn btn--icon btn--ghost"
+        data-action="toggle-dark"
+        data-label="dark_toggle_label"
+        aria-label="Toggle dark mode"
+      >
+        <i class="fa-solid fa-moon"></i>
+      </button>
+
+      <!-- Language Toggle -->
+      <button
+        class="btn btn--ghost btn--sm"
+        data-action="toggle-lang"
+        data-content="lang_toggle"
+      ></button>
+
+      <!-- Book CTA -->
+      <button
+        class="btn btn--primary btn--sm"
+        data-action="open-modal"
+        data-content="book_btn"
+      ></button>
+
+      <!-- Mobile Hamburger -->
+      <button
+        class="navbar__toggle"
+        data-action="toggle-nav"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+</nav>
