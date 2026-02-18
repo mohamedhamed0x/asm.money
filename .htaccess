@@ -1,0 +1,329 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# ASM Management Consultations — Production .htaccess
+# Apache 2.4+ optimized for performance and security
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 1. FORCE HTTPS
+# ═══════════════════════════════════════════════════════════════════════════
+# Redirects all HTTP traffic to HTTPS for security
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2. REMOVE WWW (Choose one or the other, not both)
+# ═══════════════════════════════════════════════════════════════════════════
+# Option A: Remove www (recommended for modern sites)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+</IfModule>
+
+# Option B: Force www (uncomment below and comment Option A if preferred)
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTP_HOST} !^www\. [NC]
+#     RewriteCond %{HTTP_HOST} !^localhost [NC]
+#     RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]
+# </IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 3. CLEAN URLs (Remove .html extension)
+# ═══════════════════════════════════════════════════════════════════════════
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Remove index.html from URLs
+    RewriteCond %{THE_REQUEST} /index\.html [NC]
+    RewriteRule ^(.*)index\.html$ /$1 [R=301,L]
+    
+    # Redirect /page.html to /page (external redirect)
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.html [NC]
+    RewriteRule ^ %1 [R=301,L]
+    
+    # Internally serve /page as /page.html (without redirect)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME}.html -f
+    RewriteRule ^(.+)$ $1.html [L]
+    
+    # Serve index.html for directory requests
+    DirectoryIndex index.html
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 4. GZIP COMPRESSION
+# ═══════════════════════════════════════════════════════════════════════════
+# Compresses text-based files to reduce transfer size by 60-80%
+<IfModule mod_deflate.c>
+    # Force compression for mangled headers
+    <IfModule mod_setenvif.c>
+        <IfModule mod_headers.c>
+            SetEnvIfNoCase ^(Accept-EncodXng|X-cept-Encoding|X{15}|~teleVision)$ ^((gzip|deflate)\s*,?\s*)+|[X~-]{4,13}$ HAVE_Accept-Encoding
+            RequestHeader append Accept-Encoding "gzip,deflate" env=HAVE_Accept-Encoding
+        </IfModule>
+    </IfModule>
+
+    # Compress HTML, CSS, JavaScript, Text, XML and fonts
+    <IfModule mod_filter.c>
+        AddOutputFilterByType DEFLATE application/javascript
+        AddOutputFilterByType DEFLATE application/json
+        AddOutputFilterByType DEFLATE application/ld+json
+        AddOutputFilterByType DEFLATE application/manifest+json
+        AddOutputFilterByType DEFLATE application/rss+xml
+        AddOutputFilterByType DEFLATE application/xml
+        AddOutputFilterByType DEFLATE application/xhtml+xml
+        AddOutputFilterByType DEFLATE font/collection
+        AddOutputFilterByType DEFLATE font/eot
+        AddOutputFilterByType DEFLATE font/opentype
+        AddOutputFilterByType DEFLATE font/otf
+        AddOutputFilterByType DEFLATE font/ttf
+        AddOutputFilterByType DEFLATE font/woff
+        AddOutputFilterByType DEFLATE font/woff2
+        AddOutputFilterByType DEFLATE image/svg+xml
+        AddOutputFilterByType DEFLATE image/x-icon
+        AddOutputFilterByType DEFLATE text/css
+        AddOutputFilterByType DEFLATE text/html
+        AddOutputFilterByType DEFLATE text/javascript
+        AddOutputFilterByType DEFLATE text/plain
+        AddOutputFilterByType DEFLATE text/xml
+    </IfModule>
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 5. BROTLI COMPRESSION (If available, better than GZIP)
+# ═══════════════════════════════════════════════════════════════════════════
+<IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/xml
+    AddOutputFilterByType BROTLI_COMPRESS text/css text/javascript application/javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/json application/ld+json
+    AddOutputFilterByType BROTLI_COMPRESS application/xml application/xhtml+xml
+    AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+    AddOutputFilterByType BROTLI_COMPRESS font/woff font/woff2 font/ttf font/otf
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 6. BROWSER CACHING (Critical for performance)
+# ═══════════════════════════════════════════════════════════════════════════
+# Sets expiration headers to leverage browser caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Default: 1 month
+    ExpiresDefault "access plus 1 month"
+    
+    # HTML: No cache (always fetch fresh)
+    ExpiresByType text/html "access plus 0 seconds"
+    
+    # Data: 1 hour (JSON, XML)
+    ExpiresByType application/json "access plus 1 hour"
+    ExpiresByType application/ld+json "access plus 1 week"
+    ExpiresByType application/xml "access plus 1 hour"
+    ExpiresByType text/xml "access plus 1 hour"
+    
+    # Feeds: 1 hour
+    ExpiresByType application/rss+xml "access plus 1 hour"
+    ExpiresByType application/atom+xml "access plus 1 hour"
+    
+    # Favicon: 1 week
+    ExpiresByType image/x-icon "access plus 1 week"
+    ExpiresByType image/vnd.microsoft.icon "access plus 1 week"
+    
+    # CSS & JavaScript: 1 year (hashed filenames allow aggressive caching)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    
+    # Images: 1 year
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    
+    # Fonts: 1 year
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    ExpiresByType font/eot "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    
+    # Manifest: 1 week
+    ExpiresByType application/manifest+json "access plus 1 week"
+    ExpiresByType text/cache-manifest "access plus 0 seconds"
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 7. CACHE-CONTROL HEADERS
+# ═══════════════════════════════════════════════════════════════════════════
+<IfModule mod_headers.c>
+    # HTML: No cache, always revalidate
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+    
+    # CSS & JS: Immutable with 1 year cache (hashed filenames)
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
+    # Images: 1 year cache
+    <FilesMatch "\.(gif|ico|jpe?g|png|svg|webp|avif)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
+    # Fonts: 1 year cache
+    <FilesMatch "\.(woff2?|ttf|otf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        # Enable CORS for fonts
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 8. SECURITY HEADERS
+# ═══════════════════════════════════════════════════════════════════════════
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking (embedding in iframes)
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Enable XSS protection in older browsers
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Control referrer information
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Permissions Policy (formerly Feature-Policy)
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=()"
+    
+    # Content Security Policy (Adjust as needed for your resources)
+    # This is a balanced policy - strict enough for security, flexible for CDNs
+    Header always set Content-Security-Policy "default-src 'self'; \
+        script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; \
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; \
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; \
+        img-src 'self' data: https:; \
+        connect-src 'self' https://api.emailjs.com; \
+        frame-ancestors 'self'; \
+        base-uri 'self'; \
+        form-action 'self' https://api.emailjs.com;"
+    
+    # Strict Transport Security (HSTS) - 1 year
+    # Only enable after confirming HTTPS works perfectly
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 9. PREVENT HOTLINKING
+# ═══════════════════════════════════════════════════════════════════════════
+# Prevents other sites from embedding your images
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?asm\.money [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?google\. [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?bing\. [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|webp|avif|svg)$ - [F,L]
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 10. PROPER MIME TYPES
+# ═══════════════════════════════════════════════════════════════════════════
+<IfModule mod_mime.c>
+    # JavaScript
+    AddType application/javascript js mjs
+    
+    # JSON
+    AddType application/json json
+    AddType application/ld+json jsonld
+    AddType application/manifest+json webmanifest
+    
+    # Fonts
+    AddType font/woff woff
+    AddType font/woff2 woff2
+    AddType font/ttf ttf
+    AddType font/otf otf
+    AddType application/vnd.ms-fontobject eot
+    
+    # Images
+    AddType image/svg+xml svg svgz
+    AddType image/webp webp
+    AddType image/avif avif
+    
+    # Other
+    AddType text/xml xml
+    AddType application/xml rss atom
+    AddType text/plain txt
+    AddType text/css css
+    
+    # Encoding for compressed SVG
+    AddEncoding gzip svgz
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 11. DISABLE DIRECTORY BROWSING
+# ═══════════════════════════════════════════════════════════════════════════
+# Prevents listing directory contents
+Options -Indexes
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 12. PROTECT SENSITIVE FILES
+# ═══════════════════════════════════════════════════════════════════════════
+<FilesMatch "^\.">
+    # Deny access to hidden files (like .htaccess, .git, etc.)
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Protect specific files
+<FilesMatch "(^#.*#|\.(bak|config|dist|fla|inc|ini|log|psd|sh|sql|sw[op])|~)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</FilesMatch>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 13. CUSTOM ERROR PAGES
+# ═══════════════════════════════════════════════════════════════════════════
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 14. ETAG CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════
+# ETags can cause issues with CDNs, disable or configure properly
+<IfModule mod_headers.c>
+    # Remove ETags for static files (use Cache-Control instead)
+    <FilesMatch "\.(css|js|gif|ico|jpe?g|png|svg|webp|woff2?|ttf|otf)$">
+        Header unset ETag
+    </FilesMatch>
+</IfModule>
+FileETag None
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 15. KEEP-ALIVE CONNECTIONS
+# ═══════════════════════════════════════════════════════════════════════════
+<IfModule mod_headers.c>
+    Header set Connection keep-alive
+</IfModule>
+
+# ═══════════════════════════════════════════════════════════════════════════
+# END OF .htaccess
+# ═══════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,10 @@
+# ASM Management Consultations Security Policy
+# https://securitytxt.org/
+
+Contact: mailto:asm.consultations@gmail.com
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: ar, en
+Canonical: https://asm.money/.well-known/security.txt
+
+# If you discover a security vulnerability, please report it responsibly.
+# We appreciate your help in keeping our systems secure.
